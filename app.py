@@ -18,28 +18,53 @@ def decoder (resp):
     for key, value in resp.items():
         if(key == 'entities'):
             print(key)
+            print(value)
             print("\n")
             for k in value.keys():
                 print("Entity: " + k)
-                p = value[k];
-                print(p[0]['value'])
-                tuple1 = (k , p[0]['value'])
-                entities.append(tuple1)
+                p = value[k]
+                index = 0
+                for x in p:
+                    print(p[index]['value'])
+                    tuple1 = (k, p[index]['value'])
+                    entities.append(tuple1)
+                    index += 1
+
     return entities
 
 
 def makeAnswer(entities):
     text ='You ordered '
 
+    print(entities)
+    if(len(entities) > 10):
+        return "Loose some weight, that order is to big!"
+    num = list()
     for ent in entities:
+        key = ent[0]
         value = ent[1]
         print(ent[0])
-        if ent[0] == 'food_type':
-            text+= value + ' '
-        elif ent[0] == 'number':
-            text += str(value) + ' '
-        elif ent[0] == 'drink':
-            text+= value
+        print(value)
+        if key == 'food_type':
+            text += str(num[0]) + ' ' + value
+            num.pop(0)
+            if(num):
+                text += ' and '
+        elif key == 'number':
+            num.append(value)
+        elif key == 'drink':
+            text += str(num[0]) + ' ' + value
+            num.pop(0)
+            if(num):
+                text += ' and '
+        elif key == 'sides':
+            text += str(num[0]) + ' ' + value
+            num.pop(0)
+            if (num):
+                text += ' and '
+        else:
+            text += ''
+
 
 
     print(text)
@@ -80,9 +105,9 @@ def RecognizeSpeech(AUDIO_FILENAME, num_seconds = 5):
 
 
 if __name__ == "__main__":
-    ##text = RecognizeSpeech('myspeech.wav', 4)
+    text = RecognizeSpeech('myspeech.wav', 4)
     engine = pyttsx3.init()
-    text = '3 hamburgare och 3 hamburgare tack'
+    #text = 'En hamburgare och tre fanta och en fries och 5 Cola och 3 chicken hamburgare'
     resp = client.message(text)
     engine.say(makeAnswer(decoder(resp)))
     engine.runAndWait()
